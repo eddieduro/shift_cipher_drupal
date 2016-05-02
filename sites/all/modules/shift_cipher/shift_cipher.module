@@ -79,8 +79,8 @@ function shift_cipher_form() {
 
 function element_validate_number_range($element) {
     $number_input = $element['#value'];
-    if (($number_input == 0) || ($number_input % 26 == 0)) {
-        form_set_error('shift_spaces', 'Cannot encode with a shift value of ' . $number_input . '. The message will be the same!');
+    if (($number_input == 0) || ($number_input % 26 == 0 )) {
+        form_set_error('shift_spaces', 'Cannot encode with the value of ' . $number_input . '. The message will not be encoded!');
     } elseif ($number_input < 0) {
         form_set_error('shift_spaces', 'Shift Spaces must be a positive integer.');
     }
@@ -90,7 +90,7 @@ function element_validate_left_right($element) {
     $direction = array('left', 'right');
     $direction_input = strtolower($element['#value']);
     if (!(in_array($direction_input, $direction))) {
-        form_set_error('shift_direction', 'Incorrect input, please enter left or right');
+        form_set_error('shift_direction', 'Please enter left or right');
     }
 }
 
