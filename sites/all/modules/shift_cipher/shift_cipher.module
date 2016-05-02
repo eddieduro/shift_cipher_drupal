@@ -39,10 +39,48 @@ function shift_cipher_menu(){
         'access callback' => TRUE,
         'type' => MENU_NORMAL_ITEM,
         $items['shift_cipher_success_page'] = array(
-        'title' => 'Tada!',
+        'title' => 'Woo',
         'page callback' => 'shift_cipher_success',
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
     return $items;
+}
+
+function shift_cipher_form() {
+    $form['shift_spaces'] = array(
+      '#title' => 'Shift Spaces',
+      '#type' => 'textfield',
+      '#description' => t('Enter the number of spaces to shift.'),
+      '#required' => TRUE,
+      '#element_validate' => array('element_validate_integer', 'element_validate_number_range'),
+    );
+    $form['shift_direction'] = array(
+        '#title' => 'Shift Direction',
+        '#type' => 'textfield',
+        '#description' => t('Enter a direction. (left or right or random)'),
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_left_right'),
+    );
+    $form['user_input'] = array(
+      '#title' => 'Message',
+      '#type' => 'textfield',
+      '#description' => t('Enter a message to encode.'),
+      '#required' => TRUE,
+      '#element_validate' => array('element_validate_letters_punctuation'),
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Encode Message!',
+    );
+    return $form;
+}
+
+function element_validate_number_range($element) {
+    $number_input = $element['#value'];
+    if (($number_input == 0) || ($number_input % 26 == 0)) {
+        form_set_error('shift_spaces', 'Cannot encode with a shift value of ' . $number_input . '. The message will be the same!');
+    } elseif ($number_input < 0) {
+        form_set_error('shift_spaces', 'Shift Spaces must be a positive integer.');
+    }
 }
