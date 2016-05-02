@@ -38,11 +38,12 @@ function shift_cipher_menu(){
         'page arguments' => array('shift_cipher_form'),
         'access callback' => TRUE,
         'type' => MENU_NORMAL_ITEM,
-        $items['shift_cipher_success_page'] = array(
-        'title' => 'Woo',
-        'page callback' => 'shift_cipher_success',
-        'access callback' => TRUE,
-        'type' => MENU_CALLBACK,
+     );
+    $items['shift_cipher_success_page'] = array(
+	    'title' => 'Woo',
+	    'page callback' => 'shift_cipher_success',
+	    'access callback' => TRUE,
+	    'type' => MENU_CALLBACK,
     );
     return $items;
 }
@@ -83,4 +84,65 @@ function element_validate_number_range($element) {
     } elseif ($number_input < 0) {
         form_set_error('shift_spaces', 'Shift Spaces must be a positive integer.');
     }
+}
+
+function element_validate_left_right($element) {
+    $direction = array('left', 'right');
+    $direction_input = strtolower($element['#value']);
+    if (!(in_array($direction_input, $direction))) {
+        form_set_error('shift_direction', 'Incorrect input, please enter left or right');
+    }
+}
+
+
+function element_validate_letters_punctuation($element) {
+    $user_input = str_split($element['#value']);
+    foreach ($user_input as $input) {
+        if ((preg_match("/[^a-zA-Z0-9\s\p{P}]/", $input))) {
+            form_set_error('user_input', 'Invalid character(s) in the message!');
+        }
+    }
+}
+
+function shift_cipher_form_submit($form, &$form_state) {
+    $shift_spaces = $form_state['values']['shift_spaces'];
+    $shift_direction = $form_state['values']['shift_direction'];
+    $user_input = str_split(strtolower($form_state['values']['user_input']));
+    $output = array();
+    global $alphabet;
+    foreach ($user_input as $input) {
+        if ((preg_match("/[a-zA-Z]/", $input))) {
+
+            $input = $alphabet[$input];
+
+            if ($shift_direction == 'right') {
+                $offset = $input + $shift_spaces;
+                if ($offset > 26) {
+                    $offset = $offset - 26;
+                }
+            } elseif ($shift_direction == 'left') {
+                $offset = $input - $shift_spaces;
+                    if ($offset < 0) {
+                        $offset = $offset + 26;
+                    }
+            }
+            foreach ($alphabet as $key => $value) {
+                if ($offset == $value) {
+                    $offset = $key;
+                }
+            }
+            array_push($output, $offset);
+        } else {
+            array_push($output, $input);
+        }
+    }
+
+    $_SESSION['shift_cipher'] = $output;
+    $form_state['redirect'] = 'shift_cipher_success_page';
+}
+
+function shift_cipher_success() {
+    $output = $_SESSION['shift_cipher'];
+    $output = implode("", $output);
+    return '<p><strong>results</strong>: ' . $output . '</p>';
 }
